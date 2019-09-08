@@ -1,0 +1,35 @@
+ion-toolbar {
+	ion-skeleton-text {
+		width: 100px; height: 20px;
+	}
+}
+
+
+ion-content {
+	--background: rgba(245, 245, 245, 1);
+
+	ion-card{
+	  --background: rgba(255, 255, 255, 1);
+	}
+
+	ion-card-header {
+		ion-icon{
+			float: right;
+			font-size: 40px;
+		}
+	}
+
+	ion-skeleton-text {
+		width: 60%;
+	}
+
+	ion-card-title {
+		margin-left: 15px;
+		ion-select {
+			margin-left: -15px;
+		}
+	}
+
+
+}
+

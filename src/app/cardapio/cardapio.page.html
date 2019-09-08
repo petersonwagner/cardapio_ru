@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar *ngIf="menus_available.length">
+    <ion-segment (ionChange)="choose_day($event)" [(ngModel)]="current_menu.day_value" scrollable>
+      <ion-segment-button *ngFor="let menu of menus_available" value="{{menu.day_value}}">
+      <ion-label>{{menu.day_text}}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+  <ion-toolbar *ngIf="!menus_available.length">
+    <ion-segment>
+      <ion-segment-button>
+        <ion-label>
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button>
+        <ion-label>
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+
+
+<ion-content fullscreen>
+  <ion-refresher slot="fixed" (ionRefresh)="pull_refresh_page($event)">
+  	<ion-refresher-content
+      pullingText="Atualizar"
+      refreshingText="Atualizando...">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <ion-card>
+      <ion-card-header>
+      <ion-card-title>
+      <ion-select [value]="current_ru" interface="popover" (ionChange)="choose_ru($event)">
+        <ion-select-option value="politecnico">Centro Politécnico</ion-select-option>
+        <ion-select-option value="botanico">Botânico</ion-select-option> 
+        <ion-select-option value="reitoria">Reitoria</ion-select-option>
+        <ion-select-option value="agrarias">Agrárias</ion-select-option>
+      </ion-select>
+      </ion-card-title>
+      </ion-card-header>
+
+      
+  </ion-card>
+
+  <ion-card #breakfast_card *ngIf="!(menus_available.length && !current_menu.breakfast)">
+    <ion-card-header>
+      <ion-icon name="cafe"></ion-icon>
+      <ion-card-title>Café da Manhã</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content *ngIf="current_menu.breakfast">
+      <ion-item *ngFor="let breakfast_item of current_menu.breakfast">
+        {{breakfast_item.text}}
+      </ion-item>
+    </ion-card-content>
+
+    <ion-card-content *ngIf="!current_menu.breakfast">
+      <ion-item *ngFor="let repeat of [0,1,2]">
+      	<ion-skeleton-text animated></ion-skeleton-text>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card #lunch_card *ngIf="!(menus_available.length && !current_menu.lunch)">
+    <ion-card-header>
+      <ion-icon name="sunny"></ion-icon>
+      <ion-card-title>Almoço</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content *ngIf="current_menu.lunch">
+      <ion-item *ngFor="let lunch_item of current_menu.lunch">
+      	{{lunch_item.text}}
+       </ion-item>
+    </ion-card-content>
+
+    <ion-card-content *ngIf="!current_menu.lunch">
+      <ion-item *ngFor="let repeat of [0,1,2,3]">
+      	<ion-skeleton-text animated></ion-skeleton-text>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card #dinner_card *ngIf="!(menus_available.length && !current_menu.dinner)">
+    <ion-card-header>
+      <ion-icon name="moon"></ion-icon>
+      <ion-card-title>Jantar</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content *ngIf="current_menu.dinner">
+      <ion-item *ngFor="let dinner_item of current_menu.dinner">
+      	{{dinner_item.text}}
+       </ion-item>
+    </ion-card-content>
+
+    <ion-card-content *ngIf="!current_menu.dinner">
+      <ion-item *ngFor="let repeat of [0,1,2,3]">
+      	<ion-skeleton-text animated></ion-skeleton-text>
+      </ion-item>
+    </ion-card-content>
+  </ion-card> 
+</ion-content>
