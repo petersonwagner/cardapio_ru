@@ -6,6 +6,7 @@ import { ViewChild , ElementRef} from '@angular/core'
 import { IonContent } from '@ionic/angular'
 import { Storage } from '@ionic/storage';
 import { AlertController } from '@ionic/angular';
+import { HTTP } from '@ionic-native/http/ngx';
 
 @Component({
   selector: 'app-cardapio',
@@ -22,15 +23,18 @@ export class CardapioPage {
 	current_menu: any = {};
 
 	current_ru: string = "politecnico";
+	
+	//obrigado cors, vou lidar com isso depois
 	ru_url: any = {
-		"reitoria": "http://www.pra.ufpr.br/portal/ru/ru-central/",
-		"politecnico": "http://www.pra.ufpr.br/portal/ru/ru-centro-politecnico/",
-		"botanico": "http://www.pra.ufpr.br/portal/ru/cardapio-ru-jardim-botanico/",
-		"agrarias": "http://www.pra.ufpr.br/portal/ru/cardapio-ru-agrarias/",
+		"reitoria": "https://cors-anywhere.herokuapp.com/" + "http://www.pra.ufpr.br/portal/ru/ru-central/",
+		"politecnico": "https://cors-anywhere.herokuapp.com/" + "http://www.pra.ufpr.br/portal/ru/ru-centro-politecnico/",
+		"botanico": "https://cors-anywhere.herokuapp.com/" + "http://www.pra.ufpr.br/portal/ru/cardapio-ru-jardim-botanico/",
+		"agrarias": "https://cors-anywhere.herokuapp.com/" + "http://www.pra.ufpr.br/portal/ru/cardapio/cardapio-ru-agrarias/",
 	}
 
   constructor(
 		public httpClient: HttpClient,
+		public nativehttp: HTTP,
 		private storage: Storage,
     public alertController: AlertController,
 	) {  }
@@ -53,15 +57,13 @@ export class CardapioPage {
   }
 
   async choose_ru(event){
-    console.log("choose_ru with event: ", event);
   	this.current_ru = event.detail.value;
   	await this.storage.set('current_ru', event.detail.value);
   	this.refresh_page();
   }
 
   ngOnInit(){
-    console.log("ngOnInit");
-  	this.refresh_page();
+    this.refresh_page();
   }
 
   async pull_refresh_page(event){
@@ -74,7 +76,6 @@ export class CardapioPage {
   }
 
   async refresh_page(){
-    console.log('refresh_page');
   	this.menus_available = [];
   	this.current_menu = {};
   	setTimeout(() => {
@@ -83,17 +84,22 @@ export class CardapioPage {
   }
 
   async reload_page(){
-    console.log('reload_page');
   	let last_ru_option = await this.storage.get('current_ru');
   	if (last_ru_option){
   		this.current_ru = last_ru_option;
-  	}
+	  }
+	  
+	
+	  let options: any = {
+		  headers: new HttpHeaders({ 
+			'Accept': 'text/html', 
+		  }),
+		  responseType: "text"
+	  }
 
     this.httpClient.get(
-      //'http://www.pra.ufpr.br/portal/ru/ru-centro-politecnico/',
-      this.ru_url[this.current_ru],
-      {responseType: 'text'})
-    .subscribe(html_data => {
+      this.ru_url[this.current_ru], options)
+    .subscribe((html_data: any) => {
     	this.menus_available = [];
 
       let root:any = parse(html_data)
@@ -136,18 +142,12 @@ export class CardapioPage {
     	//adiciona o ultimo dia
 			this.menus_available.push(new_menu);
 
-
-      console.log('menus_available: ', this.menus_available);
-
-			
-			this.set_current_menu();
+      this.set_current_menu();
     },
     async error => {
-      console.log(error);
-
       const alert = await this.alertController.create({
         header: 'Erro',
-        message: error.message,
+        message: JSON.stringify(error),
         buttons: ['OK']
       });
 
@@ -183,11 +183,6 @@ export class CardapioPage {
   scroll_current_card(){
   	var date = new Date();
   	var current_time = date.toLocaleTimeString();
-
-  	console.log(current_time);
-
-  	console.log(this.lunch_card);
-  	console.log(this.dinner_card);
 
     this.content.scrollToPoint(0, this.dinner_card.nativeElement.offsetTop, 1000);
   }
